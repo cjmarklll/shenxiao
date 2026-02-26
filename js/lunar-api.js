@@ -75,7 +75,7 @@ function parseTimorTech(payload, year){
   if(!payload?.holiday) return null;
   let earliest = null;
   for(const [dateStr, info] of Object.entries(payload.holiday)){
-    if(info?.holiday === true && info.name === "春节"){
+    if(info?.holiday === true && info.name === "初一"){
       // Prefer explicit date field; fall back to year + dateStr (MM-DD format)
       const mmdd = /^\d{1,2}-\d{1,2}$/.test(dateStr) ? `${year}-${dateStr}` : null;
       const full = info.date || mmdd;
