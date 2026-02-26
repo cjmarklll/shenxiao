@@ -1,16 +1,16 @@
 export const ZODIACS = [
-  { name:"鼠", branch:"子", desc:"机敏灵活，适应力强。" },
-  { name:"牛", branch:"丑", desc:"踏实稳重，责任感强。" },
-  { name:"虎", branch:"寅", desc:"自信果敢，行动力高。" },
-  { name:"兔", branch:"卯", desc:"温和细腻，亲和力好。" },
-  { name:"龙", branch:"辰", desc:"格局开阔，创造力强。" },
-  { name:"蛇", branch:"巳", desc:"思维缜密，洞察力佳。" },
-  { name:"马", branch:"午", desc:"热情奔放，执行力强。" },
-  { name:"羊", branch:"未", desc:"温柔体贴，注重和谐。" },
-  { name:"猴", branch:"申", desc:"聪明机变，创意丰富。" },
-  { name:"鸡", branch:"酉", desc:"认真负责，讲求效率。" },
-  { name:"狗", branch:"戌", desc:"忠诚可靠，重视承诺。" },
-  { name:"猪", branch:"亥", desc:"真诚豁达，乐观包容。" }
+            { name: '鼠', icon: '🐭', desc: '机智敏锐，灵活多变，具有强烈的适应能力和进取心。' },
+            { name: '牛', icon: '🐮', desc: '勤勉踏实，诚实可靠，做事有着坚韧不拔的毅力。' },
+            { name: '虎', icon: '🐯', desc: '勇敢自信，充满活力，天生具有领导力和冒险精神。' },
+            { name: '兔', icon: '🐰', desc: '温柔善良，心思细腻，向往和平与和谐的生活环境。' },
+            { name: '龙', icon: '🐲', desc: '气宇轩昂，充满智慧，有着远大的理想和抱负。' },
+            { name: '蛇', icon: '🐍', desc: '神秘睿智，外表冷峻内心热情，有着极强的直觉力。' },
+            { name: '马', icon: '🐴', desc: '热情奔放，向往自由，有着不折不挠的进取精神。' },
+            { name: '羊', icon: '🐑', desc: '温文尔雅，富有同情心，具有浓厚的人情味和艺术气质。' },
+            { name: '猴', icon: '🐵', desc: '聪明伶俐，幽默风趣，多才多艺且有着极强的好奇心。' },
+            { name: '鸡', icon: '🐔', desc: '勤奋守信，神采奕奕，做事果断且有着出色的表达能力。' },
+            { name: '狗', icon: '🐶', desc: '忠诚可靠，正直勇敢，对朋友和家人充满责任感。' },
+            { name: '猪', icon: '🐷', desc: '豁达开朗，诚实善良，懂得享受生活且有着好人缘。' }
 ];
 export function zodiacIndexByYear(year){
   return ((year - 2020) % 12 + 12) % 12;
