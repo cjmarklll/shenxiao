@@ -1,0 +1,17 @@
+.container{max-width:920px;margin:24px auto;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{margin:0 0 6px} p{margin:0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+label{display:flex;flex-direction:column;gap:6px}
+input,select{height:40px;border:1px solid var(--border);border-radius:10px;padding:0 10px;background:transparent;color:var(--text)}
+.actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+.btn{height:40px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:10px;padding:0 14px;cursor:pointer}
+.btn.primary{background:var(--primary);border:none;color:#fff}
+.msg{margin-top:10px;min-height:20px}
+.hidden{display:none}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.meta .item{border:1px solid var(--border);border-radius:10px;padding:10px}
+.module{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px}
+@media(max-width:760px){.grid,.meta{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.grid,.meta{grid-template-columns:1fr}}

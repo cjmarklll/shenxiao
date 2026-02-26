@@ -1,0 +1,9 @@
+:root{
+  --bg:#0b1020; --card:#151d33; --text:#eaf0ff; --muted:#a8b3cf;
+  --primary:#6ea8fe; --border:#2b3658;
+}
+:root.light{
+  --bg:#f3f7ff; --card:#ffffff; --text:#1f2a44; --muted:#5e6b85;
+  --primary:#2563eb; --border:#d7e1f7;
+}
+body{background:var(--bg);color:var(--text)}
