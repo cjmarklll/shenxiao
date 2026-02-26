@@ -37,7 +37,7 @@ function sameAnimalYears(center, count=11){
 function render({y,m,d,zodiacYear,boundaryText}){
   const idx = zodiacIndexByYear(zodiacYear);
   const z = ZODIACS[idx];
-  animalTitleEl.textContent = `${z.name}（生肖年：${zodiacYear}）`;
+  animalTitleEl.textContent = `${z.icon,z.name}（生肖年：${zodiacYear}）`;
   animalDescEl.textContent = z.desc;
   metaEl.innerHTML = `
     <div class="item"><b>生日</b><div>${y}-${pad(m)}-${pad(d)}</div></div>
