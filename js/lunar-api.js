@@ -1,132 +1,116 @@
-// Built-in Spring Festival (Chinese New Year) precise date table, 1900–2100.
-// Each entry is [month, day] for the year at index (year - 1900).
-// Verified for 1900–2030 against authoritative astronomical tables;
-// 2031–2100 based on 19-year Metonic-cycle approximation (±1 day).
-//
-// Boundary case examples (see acceptance tests):
-//   2024-02-09 → before 2024-02-10 (春节) → zodiac year 2023 (兔)
-//   2024-02-10 → on/after 2024-02-10    → zodiac year 2024 (龙)
-//   2025-01-28 → before 2025-01-29 (春节) → zodiac year 2024 (龙)
-//   2025-01-29 → on/after 2025-01-29    → zodiac year 2025 (蛇)
-const SF_TABLE = [
-  // 1900–1909
-  [1,31],[2,19],[2,8],[1,29],[2,16],[2,4],[1,25],[2,13],[2,2],[1,22],
-  // 1910–1919
-  [2,10],[1,30],[2,18],[2,6],[1,26],[2,14],[2,3],[1,23],[2,11],[2,1],
-  // 1920–1929
-  [2,20],[2,8],[1,28],[2,16],[2,5],[1,25],[2,13],[2,2],[1,23],[2,10],
-  // 1930–1939
-  [1,30],[2,17],[2,6],[1,26],[2,14],[2,4],[1,24],[2,11],[1,31],[2,19],
-  // 1940–1949
-  [2,8],[1,27],[2,15],[2,5],[1,25],[2,13],[2,2],[1,22],[2,10],[1,29],
-  // 1950–1959
-  [2,17],[2,6],[1,27],[2,14],[2,3],[1,24],[2,12],[1,31],[2,18],[2,8],
-  // 1960–1969
-  [1,28],[2,15],[2,5],[1,25],[2,13],[2,2],[1,21],[2,9],[1,30],[2,17],
-  // 1970–1979
-  [2,6],[1,27],[2,15],[2,3],[1,23],[2,11],[1,31],[2,18],[2,7],[1,28],
-  // 1980–1989
-  [2,16],[2,5],[1,25],[2,13],[2,2],[2,20],[2,9],[1,29],[2,17],[2,6],
-  // 1990–1999
-  [1,27],[2,15],[2,4],[1,23],[2,10],[1,31],[2,19],[2,7],[1,28],[2,16],
-  // 2000–2009
-  [2,5],[1,24],[2,12],[2,1],[1,22],[2,9],[1,29],[2,18],[2,7],[1,26],
-  // 2010–2019
-  [2,14],[2,3],[1,23],[2,10],[1,31],[2,19],[2,8],[1,28],[2,16],[2,5],
-  // 2020–2029
-  [1,25],[2,12],[2,1],[1,22],[2,10],[1,29],[2,17],[2,6],[1,26],[2,13],
-  // 2030–2039
-  [2,3],[1,23],[2,11],[1,31],[2,19],[2,8],[1,28],[2,15],[2,4],[1,24],
-  // 2040–2049
-  [2,12],[2,1],[1,22],[2,10],[1,30],[2,17],[2,6],[1,26],[2,14],[2,2],
-  // 2050–2059
-  [1,23],[2,11],[1,31],[2,19],[2,8],[1,28],[2,15],[2,4],[1,24],[2,12],
-  // 2060–2069
-  [2,2],[1,21],[2,9],[1,29],[2,17],[2,5],[1,26],[2,14],[2,3],[1,23],
-  // 2070–2079
-  [2,11],[1,31],[2,19],[2,7],[1,28],[2,15],[2,5],[1,24],[2,12],[2,2],
-  // 2080–2089
-  [1,22],[2,9],[1,29],[2,17],[2,6],[1,27],[2,14],[2,4],[1,24],[2,10],
-  // 2090–2099
-  [1,30],[2,18],[2,7],[1,27],[2,15],[2,4],[1,24],[2,11],[2,1],[1,22],
-  // 2100
-  [2,8]
-];
+import { ZODIACS, zodiacIndexByYear } from "./zodiac-data.js";
+import { getSpringFestivalDate } from "./lunar-api.js";
 
-function getFromTable(year){
-  const idx = year - 1900;
-  if(idx < 0 || idx >= SF_TABLE.length) return null;
-  const [month, day] = SF_TABLE[idx];
-  return { month, day, source: "built-in-table" };
+const $ = id => document.getElementById(id);
+const yearEl = $("year"), monthEl = $("month"), dayEl = $("day"), boundaryEl = $("boundary");
+const msgEl = $("msg"), resultEl = $("result"), zodiacVisual = $("zodiacVisual");
+const animalTitle = $("animalTitle"), animalDesc = $("animalDesc");
+const metaEl = $("meta"), sameYearsEl = $("sameYears"), boundarySourceEl = $("boundarySource");
+
+function pad(n){ return String(n).padStart(2, "0"); }
+function isLeap(y){ return (y%4===0&&y%100!==0)||y%400===0; }
+function dim(y,m){ return [31,isLeap(y)?29:28,31,30,31,30,31,31,30,31,30,31][m-1]||0; }
+
+function validate(y,m,d){
+  if(!Number.isInteger(y)||!Number.isInteger(m)||!Number.isInteger(d)) return "请输入有效的整数年月日。";
+  if(y<1900||y>2100) return "年份范围建议 1900 - 2100。";
+  if(m<1||m>12) return "月份应在 1 - 12。";
+  const max = dim(y,m);
+  if(d<1||d>max) return `该日期不存在：${y}-${pad(m)} 最大 ${max} 日。`;
+  return "";
 }
 
-async function fetchWithTimeout(url, timeout = 5000){
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
+function yearsAround(center,count=11){
+  const start = center - 12*Math.floor(count/2);
+  return Array.from({length:count},(_,i)=> start + i*12);
+}
+
+async function determineZodiacYear(y,m,d,mode){
+  if(mode === "lichun"){
+    // 立春近似：2月4日
+    const zy = (m < 2 || (m === 2 && d < 4)) ? y - 1 : y;
+    return { zodiacYear: zy, sourceText: "立春（2月4日近似）" };
+  }
+  // 春节：依赖 lunar-api.js 的 getSpringFestivalDate(year)
+  const sf = await getSpringFestivalDate(y);
+  const before = (m < sf.month) || (m === sf.month && d < sf.day);
+  const zy = before ? y - 1 : y;
+  const sourceText = `春节（${y}-${pad(sf.month)}-${pad(sf.day)}，来源：${sf.source}）`;
+  return { zodiacYear: zy, sourceText };
+}
+
+function renderResult({y,m,d,zodiacYear,sourceText}){
+  const idx = zodiacIndexByYear(zodiacYear);
+  const z = ZODIACS[idx] || { name: "未知", branch: "—", desc: "" };
+
+  // 视觉区：显示 emoji（name 里通常含 emoji）
+  zodiacVisual.innerHTML = `<div class="emoji">${z.name.split(/(?<=.)/)[0] || ""}</div>`; // 简单获取首字符（emoji）
+  zodiacVisual.classList.add("animated");
+  setTimeout(()=>zodiacVisual.classList.remove("animated"),420);
+
+  animalTitle.textContent = `${z.name} · 生肖年 ${zodiacYear}`;
+  animalDesc.textContent = z.desc;
+
+  metaEl.innerHTML = `
+    <div class="meta-item"><b>生日</b><p>${y}-${pad(m)}-${pad(d)}</p></div>
+    <div class="meta-item"><b>地支</b><p>${z.branch ?? "—"}</p></div>
+    <div class="meta-item"><b>分界</b><p>${sourceText}</p></div>
+  `;
+
+  sameYearsEl.textContent = `与你同生肖的参考年份：${yearsAround(zodiacYear).join("、")}`;
+  boundarySourceEl.textContent = `数据来源：${sourceText}`;
+
+  resultEl.classList.remove("hidden");
+  msgEl.textContent = "查询成功 ✅";
+}
+
+document.getElementById("zform").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const y = Number(yearEl.value), m = Number(monthEl.value), d = Number(dayEl.value);
+  const mode = boundaryEl.value;
+  const err = validate(y,m,d);
+  if(err){ msgEl.textContent = `⚠️ ${err}`; resultEl.classList.add("hidden"); return; }
+
+  msgEl.textContent = "正在计算（可能会请求历法数据）…";
   try{
-    const res = await fetch(url, { signal: controller.signal });
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } finally { clearTimeout(timer); }
-}
-
-// Parse timor.tech holiday API: finds the earliest date labelled "春节"
-function parseTimorTech(payload, year){
-  if(!payload?.holiday) return null;
-  let earliest = null;
-  for(const [dateStr, info] of Object.entries(payload.holiday)){
-    if(info?.holiday === true && info.name === "初一"){
-      // Prefer explicit date field; fall back to year + dateStr (MM-DD format)
-      const mmdd = /^\d{1,2}-\d{1,2}$/.test(dateStr) ? `${year}-${dateStr}` : null;
-      const full = info.date || mmdd;
-      const m = full && String(full).match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-      if(m && Number(m[1]) === year){
-        const month = Number(m[2]), day = Number(m[3]);
-        const val = month * 100 + day;
-        const earlyVal = earliest ? earliest.month * 100 + earliest.day : Infinity;
-        if(val < earlyVal) earliest = { month, day };
-      }
-    }
+    const info = await determineZodiacYear(y,m,d,mode);
+    renderResult({ y,m,d, zodiacYear: info.zodiacYear, sourceText: info.sourceText });
+    localStorage.setItem("shenxiao-last", JSON.stringify({ y,m,d,mode }));
+  }catch(err){
+    console.error(err);
+    msgEl.textContent = "请求历法数据失败，已使用兜底规则。";
+    const info = await determineZodiacYear(y,m,d,"lichun");
+    renderResult({ y,m,d, zodiacYear: info.zodiacYear, sourceText: info.sourceText });
   }
-  return earliest;
-}
+});
 
-const API_SOURCES = [
-  {
-    buildUrl: (year) => `https://timor.tech/api/holiday/year/${year}/`,
-    parse: parseTimorTech,
-    label: "timor.tech"
-  }
-];
+document.getElementById("todayBtn").addEventListener("click", ()=>{
+  const t = new Date();
+  yearEl.value = t.getFullYear();
+  monthEl.value = t.getMonth()+1;
+  dayEl.value = t.getDate();
+});
 
-export async function getSpringFestivalDate(year){
-  for(const { buildUrl, parse, label } of API_SOURCES){
-    const url = buildUrl(year);
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  yearEl.value = monthEl.value = dayEl.value = "";
+  msgEl.textContent = "";
+  resultEl.classList.add("hidden");
+});
+
+document.getElementById("themeToggle").addEventListener("click", ()=>{
+  document.documentElement.classList.toggle("light");
+  localStorage.setItem("shenxiao-theme", document.documentElement.classList.contains("light") ? "light" : "dark");
+});
+
+(function init(){
+  const theme = localStorage.getItem("shenxiao-theme");
+  if(theme === "light") document.documentElement.classList.add("light");
+
+  const last = localStorage.getItem("shenxiao-last");
+  if(last){
     try{
-      const payload = await fetchWithTimeout(url, 5000);
-      const date = parse(payload, year);
-      if(date) return { ...date, source: `api:${label}` };
-    }catch(_e){}
+      const { y,m,d,mode } = JSON.parse(last);
+      yearEl.value = y; monthEl.value = m; dayEl.value = d; boundaryEl.value = mode ?? "springFestival";
+    }catch{}
   }
-  // All APIs failed – use built-in table
-  const result = getFromTable(year);
-  if(result) return result;
-  // Out-of-range year: approximate with 立春
-  return { month: 2, day: 4, source: "fallback-approximate" };
-}
-
-// Reusable validation helper for testing boundary cases
-export function validateBoundary(cases){
-  return cases.map(({ year, month, day, expectedZodiacYear }) => {
-    const sf = getFromTable(year);
-    if(!sf) return { input: `${year}-${month}-${day}`, error: "year out of range" };
-    const isBefore = month < sf.month || (month === sf.month && day < sf.day);
-    const actualZodiacYear = isBefore ? year - 1 : year;
-    return {
-      input: `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`,
-      springFestival: `${year}-${String(sf.month).padStart(2,"0")}-${String(sf.day).padStart(2,"0")}`,
-      zodiacYear: actualZodiacYear,
-      pass: actualZodiacYear === expectedZodiacYear
-    };
-  });
-}
+})();
