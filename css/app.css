@@ -1,17 +1,112 @@
-.container{max-width:920px;margin:24px auto;padding:0 16px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px}
-.header{display:flex;justify-content:space-between;align-items:center;gap:10px}
-h1{margin:0 0 6px} p{margin:0;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-label{display:flex;flex-direction:column;gap:6px}
-input,select{height:40px;border:1px solid var(--border);border-radius:10px;padding:0 10px;background:transparent;color:var(--text)}
-.actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
-.btn{height:40px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:10px;padding:0 14px;cursor:pointer}
-.btn.primary{background:var(--primary);border:none;color:#fff}
-.msg{margin-top:10px;min-height:20px}
-.hidden{display:none}
-.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-.meta .item{border:1px solid var(--border);border-radius:10px;padding:10px}
-.module{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px}
-@media(max-width:760px){.grid,.meta{grid-template-columns:1fr 1fr}}
-@media(max-width:480px){.grid,.meta{grid-template-columns:1fr}}
+:root{
+  --bg:#0b1220;
+  --card:#0f1724;
+  --muted:#9aa8c2;
+  --text:#e6eef8;
+  --primary:#6fb8ff;
+  --accent:#ffb86b;
+  --glass: rgba(255,255,255,0.04);
+  --radius:14px;
+  --shadow: 0 10px 30px rgba(2,6,23,.6);
+}
+
+/* 亮色切换 */
+:root.light{
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --muted:#576579;
+  --text:#0b1220;
+  --primary:#2563eb;
+  --accent:#ff8a3d;
+  --glass: rgba(2,6,23,0.04);
+  --shadow: 0 10px 30px rgba(11,20,40,.06);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(600px 300px at 10% 10%, rgba(111,184,255,0.06), transparent),
+    linear-gradient(180deg,var(--bg) 0%, #061024 100%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  padding:36px 20px;
+}
+
+/* 布局容器 */
+.site{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+/* Header */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{
+  width:56px;height:56px;border-radius:12px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:grid;place-items:center;font-weight:800;color:#07203a;font-size:18px;
+  box-shadow: var(--shadow);
+}
+.logo-text h1{margin:0;font-size:1.1rem}
+.logo-text .muted{margin-top:4px;font-size:.86rem;color:var(--muted)}
+
+/* 卡片 */
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  border-radius:var(--radius);
+  padding:14px;
+  border:1px solid rgba(255,255,255,0.03);
+  box-shadow: var(--shadow);
+}
+
+/* 搜索区域 */
+.search-card .form{display:flex;flex-direction:column;gap:12px}
+.inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+label{display:flex;flex-direction:column;gap:8px;font-size:.95rem;color:var(--muted)}
+input,select{
+  height:46px;padding:0 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+  background:var(--glass);color:var(--text);outline:none;font-size:1rem;
+}
+input:focus,select:focus{box-shadow:0 6px 18px rgba(111,184,255,0.08);border-color:rgba(111,184,255,0.28)}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.btn{height:42px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text);cursor:pointer}
+.btn.small{height:34px;padding:6px 10px;font-size:.9rem}
+.btn.primary{background:linear-gradient(90deg,var(--primary),var(--accent));border:none;color:#07203a;font-weight:700;box-shadow:0 8px 24px rgba(111,184,255,0.08)}
+
+/* 信息卡 */
+.result-card{padding:18px}
+.result-inner{display:flex;gap:18px;align-items:flex-start}
+.zodiac-visual{
+  width:160px;height:160px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.03);
+  font-size:48px;box-shadow:0 10px 30px rgba(2,6,23,0.45);
+  transition:transform .36s cubic-bezier(.2,.9,.2,1);
+}
+.zodiac-visual.animated{transform:translateY(-6px) scale(1.02)}
+.zodiac-info h2{margin:0;font-size:1.4rem}
+.zodiac-info .muted{margin-top:6px;font-size:.95rem;color:var(--muted)}
+
+/* meta 网格 */
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.meta-item{background:var(--glass);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+.meta-item b{display:block;font-size:.84rem;color:var(--muted)}
+.meta-item p{margin:6px 0 0;font-weight:700}
+
+/* 同生肖年份 */
+.same-years{margin-top:12px;color:var(--muted);font-size:.95rem}
+.footer-note{margin-top:10px;font-size:.85rem}
+
+/* footer */
+.site-foot{text-align:center;padding:8px 0;font-size:.9rem}
+
+/* 响应式 */
+@media (max-width:820px){
+  .result-inner{flex-direction:column;align-items:center}
+  .inputs{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:520px){
+  .inputs{grid-template-columns:1fr}
+  .meta-grid{grid-template-columns:1fr}
+}
