@@ -1,5 +1,5 @@
 export const ZODIACS = [
-{ name: '鼠🐭', branch: '子', desc: '机智敏锐，灵活多变，具有强烈的适应能力和进取心。' },
+  { name: '鼠🐭', branch: '子', desc: '机智敏锐，灵活多变，具有强烈的适应能��和进取心。' },
   { name: '牛🐮', branch: '丑', desc: '勤勉踏实，诚实可靠，做事有着坚韧不拔的毅力。' },
   { name: '虎🐯', branch: '寅', desc: '勇敢自信，充满活力，天生具有领导力和冒险精神。' },
   { name: '兔🐰', branch: '卯', desc: '温柔善良，心思细腻，向往和平与和谐的生活环境。' },
@@ -12,6 +12,7 @@ export const ZODIACS = [
   { name: '狗🐶', branch: '戌', desc: '忠诚可靠，正直勇敢，对朋友和家人充满责任感。' },
   { name: '猪🐷', branch: '亥', desc: '豁达开朗，诚实善良，懂得享受生活且有着好人缘。' }
 ];
+
 export function zodiacIndexByYear(year){
   return ((year - 2020) % 12 + 12) % 12;
 }
